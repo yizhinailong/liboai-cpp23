@@ -10,6 +10,15 @@ if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
 
+if(WIN32)
+    set(VCPKG_CMAKE_PATH $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "Location of vcpkg.cmake")
+    include(${VCPKG_CMAKE_PATH})
+    find_package(ZLIB REQUIRED)
+    find_package(nlohmann_json CONFIG REQUIRED)
+    find_package(CURL REQUIRED)
+endif()
+
+
 # 查找依赖
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)
