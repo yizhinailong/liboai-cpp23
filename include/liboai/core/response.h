@@ -47,11 +47,11 @@ namespace liboai {
 
     class JsonConstructor final {
     public:
-        JsonConstructor() {}
+        JsonConstructor() = default;
 
-        JsonConstructor(const JsonConstructor& other) noexcept : _json(other._json) {}
+        JsonConstructor(const JsonConstructor& other) noexcept = default;
 
-        JsonConstructor(JsonConstructor&& old) noexcept : _json(std::move(old._json)) {}
+        JsonConstructor(JsonConstructor&& old) noexcept = default;
 
         template <class _Ty>
         void push_back(std::string_view key, const _Ty& value) {
@@ -104,8 +104,8 @@ namespace liboai {
             @brief Transparent operator[] wrapper to nlohmann::json to
                 access the Response object as if it were a json object.
         */
-        template <class _Ty>
-        nlohmann::json::const_reference operator[](const _Ty& key) const noexcept {
+        template <class Ty>
+        nlohmann::json::const_reference operator[](const Ty& key) const noexcept {
             return this->raw_json[key];
         }
 

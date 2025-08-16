@@ -43,7 +43,7 @@
 namespace liboai {
     class OpenAI {
     public:
-        OpenAI(const std::string& root = "https://api.openai.com/v1")
+        explicit OpenAI(const std::string& root = "https://api.openai.com/v1")
             : Audio(std::make_unique<liboai::Audio>(root)),
               Azure(std::make_unique<liboai::Azure>(root)),
               ChatCompletion(std::make_unique<liboai::ChatCompletion>(root)),
@@ -61,7 +61,7 @@ namespace liboai {
         void operator=(OpenAI const&) = delete;
         void operator=(OpenAI&&) = delete;
 
-    public: // component interfaces
+        // component interfaces
         /*
             @brief A pointer to the Audio component class that
                 provides access to its OpenAI API endpoints.
@@ -128,7 +128,6 @@ namespace liboai {
         */
         std::unique_ptr<liboai::Moderations> Moderation;
 
-    public:
         /*
             @brief Convenience reference to the Authorization class
                 singleton used to set authorization information.

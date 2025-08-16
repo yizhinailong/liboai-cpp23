@@ -1,13 +1,35 @@
 #include "liboai/core/response.h"
 
 liboai::Response::Response(const liboai::Response& other) noexcept
-    : status_code(other.status_code), elapsed(other.elapsed), status_line(other.status_line), content(other.content), url(other.url), reason(other.reason), raw_json(other.raw_json) {}
+    : status_code(other.status_code),
+      elapsed(other.elapsed),
+      status_line(other.status_line),
+      content(other.content),
+      url(other.url),
+      reason(other.reason),
+      raw_json(other.raw_json) {}
 
 liboai::Response::Response(liboai::Response&& other) noexcept
-    : status_code(other.status_code), elapsed(other.elapsed), status_line(std::move(other.status_line)), content(std::move(other.content)), url(std::move(other.url)), reason(std::move(other.reason)), raw_json(std::move(other.raw_json)) {}
+    : status_code(other.status_code),
+      elapsed(other.elapsed),
+      status_line(std::move(other.status_line)),
+      content(std::move(other.content)),
+      url(std::move(other.url)),
+      reason(std::move(other.reason)),
+      raw_json(std::move(other.raw_json)) {}
 
-liboai::Response::Response(std::string&& url, std::string&& content, std::string&& status_line, std::string&& reason, long status_code, double elapsed) noexcept(false)
-    : status_code(status_code), elapsed(elapsed), status_line(std::move(status_line)), content(std::move(content)), url(url), reason(std::move(reason)) {
+liboai::Response::Response(std::string&& url,
+                           std::string&& content,
+                           std::string&& status_line,
+                           std::string&& reason,
+                           long status_code,
+                           double elapsed) noexcept(false)
+    : status_code(status_code),
+      elapsed(elapsed),
+      status_line(std::move(status_line)),
+      content(std::move(content)),
+      url(url),
+      reason(std::move(reason)) {
     try {
         if (!this->content.empty()) {
             if (this->content[0] == '{') {

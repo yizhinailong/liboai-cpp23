@@ -807,7 +807,10 @@ namespace liboai {
         /*
             @brief Returns whether the conversation has functions or not. this function call from ChatComplete
         */
-        [[nodiscard]] constexpr bool HasFunctions() const& noexcept { return this->_functions ? true : false; }
+        [[nodiscard]]
+        constexpr bool HasFunctions() const& noexcept {
+            return static_cast<bool>(this->_functions);
+        }
 
         /**
          * @brief Sets the maximum history size for the conversation.
@@ -827,7 +830,8 @@ namespace liboai {
             @brief split full stream data that read from remote server.
             @returns vector of string that contains the split data that will contains the last termination string(data: "DONE").
         */
-        [[nodiscard]] std::vector<std::string> SplitFullStreamedData(std::string data) const noexcept(false);
+        [[nodiscard]]
+        std::vector<std::string> SplitFullStreamedData(std::string data) const noexcept(false);
         bool ParseStreamData(std::string data, std::string& delta, bool& completed);
 
         nlohmann::json _conversation;
@@ -839,7 +843,7 @@ namespace liboai {
 
     class ChatCompletion final : private Network {
     public:
-        ChatCompletion(const std::string& root) : Network(root) {}
+        explicit ChatCompletion(const std::string& root) : Network(root) {}
         NON_COPYABLE(ChatCompletion)
         NON_MOVABLE(ChatCompletion)
         ~ChatCompletion() = default;

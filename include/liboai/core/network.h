@@ -15,6 +15,7 @@
 
 #include <future>
 #include <optional>
+#include <utility>
 
 #include "liboai/core/netimpl.h"
 
@@ -27,7 +28,7 @@ namespace liboai {
 
             @param root     The URL to direct API calls to.
         */
-        Network(const std::string& root) noexcept : openai_root_(root) {}
+        explicit Network(std::string root) noexcept : openai_root_(std::move(root)) {}
         NON_COPYABLE(Network)
         NON_MOVABLE(Network)
 
