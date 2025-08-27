@@ -1,0 +1,22 @@
+{
+  "name": "liboai",
+  "version": "4.0.1",
+  "description": "A simple, unofficial C++17 library for the OpenAI API.",
+  "homepage": "https://github.com/yizhinailong/liboai",
+  "license": "MIT",
+  "dependencies": [
+    "curl",
+    {
+      "name": "nlohmann-json",
+      "platform": "windows & !static"
+    },
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}
