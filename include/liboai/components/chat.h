@@ -692,14 +692,14 @@ namespace liboai {
                 conversation, so this method would be a bad idea to call
                 afterwards.
 
-            @param *history      The JSON data to update the conversation with.
+            @param *response      The JSON data to update the conversation with.
                                      This should be the 'messages' array of data returned
                                      from a call to ChatCompletion::create.
 
             @returns True/False denoting whether the conversation was updated.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool Update(std::string_view history) & noexcept(false);
+        LIBOAI_EXPORT bool Update(std::string_view response) & noexcept(false);
 
         /*
             @brief Updates the conversation given a Response object.
@@ -761,7 +761,7 @@ namespace liboai {
                 @param *token    Streamed token (data) to update the conversation with.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool AppendStreamData(std::string data) & noexcept(false);
+        LIBOAI_EXPORT bool AppendStreamData(std::string& data) & noexcept(false);
 
         /*
             @brief Appends stream data (SSEs) from streamed methods.
@@ -777,7 +777,7 @@ namespace liboai {
                 @param *completed output parameter. Whether the stream is completed.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool AppendStreamData(std::string data, std::string& delta, bool& completed) & noexcept(false);
+        LIBOAI_EXPORT bool AppendStreamData(std::string& data, std::string& delta, bool& completed) & noexcept(false);
 
         /*
             @brief Sets the functions to be used for the conversation.
@@ -788,7 +788,7 @@ namespace liboai {
                 @returns True/False denoting whether the functions were set.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool SetFunctions(Functions functions) & noexcept(false);
+        LIBOAI_EXPORT bool SetFunctions(Functions& functions) & noexcept(false);
 
         /*
             @brief Pops any previously set functions.

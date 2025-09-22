@@ -4,17 +4,16 @@ liboai::Conversation::Conversation() {
     this->_conversation["messages"] = nlohmann::json::array();
 }
 
-liboai::Conversation::Conversation(const Conversation& other) {
+liboai::Conversation::Conversation(const Conversation& other)
+    : _functions(other._functions),
+      _last_resp_is_fc(other._last_resp_is_fc) {
     this->_conversation = other._conversation;
-    this->_functions = other._functions;
-    this->_last_resp_is_fc = other._last_resp_is_fc;
 }
 
-liboai::Conversation::Conversation(Conversation&& old) noexcept {
+liboai::Conversation::Conversation(Conversation&& old) noexcept
+    : _functions(std::move(old._functions)),
+      _last_resp_is_fc(old._last_resp_is_fc) {
     this->_conversation = std::move(old._conversation);
-    this->_functions = std::move(old._functions);
-    this->_last_resp_is_fc = old._last_resp_is_fc;
-
     old._conversation = nlohmann::json::object();
     old._functions = nlohmann::json::object();
 }
@@ -56,9 +55,11 @@ liboai::Conversation::Conversation(const std::vector<std::string>& user_data) {
 }
 
 liboai::Conversation& liboai::Conversation::operator=(const Conversation& other) {
-    this->_conversation = other._conversation;
-    this->_functions = other._functions;
-    this->_last_resp_is_fc = other._last_resp_is_fc;
+    if (this != &other) {
+        this->_conversation = other._conversation;
+        this->_functions = other._functions;
+        this->_last_resp_is_fc = other._last_resp_is_fc;
+    }
     return *this;
 }
 
@@ -89,7 +90,7 @@ bool liboai::Conversation::SetSystemData(std::string_view data) & noexcept(false
     if (!data.empty()) {
         // if system is not set already - only one system message shall exist in any
         // conversation
-        for (auto& message : this->_conversation["messages"].items()) {
+        for (const auto& message : this->_conversation["messages"].items()) {
             if (message.value()["role"].get<std::string>() == "system") {
                 return false; // system already set
             }
@@ -230,7 +231,7 @@ bool liboai::Conversation::Update(std::string_view response) & noexcept(false) {
     if (!response.empty()) {
         nlohmann::json j = nlohmann::json::parse(response);
         if (j.contains("choices")) { // top level, several messages
-            for (auto& choice : j["choices"].items()) {
+            for (const auto& choice : j["choices"].items()) {
                 if (choice.value().contains("message")) {
                     if (choice.value()["message"].contains("role") && choice.value()["message"].contains("content")) {
                         if (!choice.value()["message"]["content"].is_null()) {
@@ -257,22 +258,22 @@ bool liboai::Conversation::Update(std::string_view response) & noexcept(false) {
 
                             this->_conversation["function_call"] = nlohmann::json::object();
                             if (choice.value()["message"]["function_call"].contains("name")) {
-                                this->_conversation["function_call"]["name"] = choice.value()["message"]["function_call"]["name"];
+                                this->_conversation["function_call"]["name"] =
+                                    choice.value()["message"]["function_call"]["name"];
                             }
                             if (choice.value()["message"]["function_call"].contains("arguments")) {
-                                this->_conversation["function_call"]["arguments"] = choice.value()["message"]["function_call"]["arguments"];
+                                this->_conversation["function_call"]["arguments"] =
+                                    choice.value()["message"]["function_call"]["arguments"];
                             }
 
                             this->_last_resp_is_fc = true;
                         }
 
-                        return true;  // conversation updated successfully
-                    } else {
-                        return false; // response is not valid
+                        return true;        // conversation updated successfully
                     }
-                } else {
-                    return false; // no response found
+                    return false;           // response is not valid
                 }
+                return false;               // no response found
             }
         } else if (j.contains("message")) { // mid level, single message
             if (j["message"].contains("role") && j["message"].contains("content")) {
@@ -310,9 +311,9 @@ bool liboai::Conversation::Update(std::string_view response) & noexcept(false) {
                 }
 
                 return true;                                      // conversation updated successfully
-            } else {
-                return false;                                     // response is not valid
             }
+            return false;                                         // response is not valid
+
         } else if (j.contains("role") && j.contains("content")) { // low level, single message
             if (j["message"]["content"].is_null()) {
                 EraseExtra();
@@ -395,7 +396,7 @@ bool liboai::Conversation::Import(std::string_view json) & noexcept(false) {
     return false; // json is empty
 }
 
-bool liboai::Conversation::AppendStreamData(std::string data) & noexcept(false) {
+bool liboai::Conversation::AppendStreamData(std::string& data) & noexcept(false) {
     if (!data.empty()) {
         std::string delta;
         bool completed = false;
@@ -405,7 +406,7 @@ bool liboai::Conversation::AppendStreamData(std::string data) & noexcept(false) 
     return false; // data is empty
 }
 
-bool liboai::Conversation::AppendStreamData(std::string data, std::string& delta, bool& completed) & noexcept(false) {
+bool liboai::Conversation::AppendStreamData(std::string& data, std::string& delta, bool& completed) & noexcept(false) {
     if (!data.empty()) {
         return this->ParseStreamData(data, delta, completed);
     }
@@ -413,7 +414,7 @@ bool liboai::Conversation::AppendStreamData(std::string data, std::string& delta
     return false;
 }
 
-bool liboai::Conversation::SetFunctions(Functions functions) & noexcept(false) {
+bool liboai::Conversation::SetFunctions(Functions& functions) & noexcept(false) {
     nlohmann::json j = functions.GetJSON();
 
     if (!j.empty() && j.contains("functions") && j["functions"].size() > 0) {
