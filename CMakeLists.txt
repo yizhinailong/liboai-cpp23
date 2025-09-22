@@ -113,9 +113,9 @@ source_group("core" FILES
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT liboai)
 
 # 构建示例选项
-option(BUILD_EXAMPLES "Build example applications" OFF)
+option(BUILD_EXAMPLES "Build example applications" ON)
 if(BUILD_EXAMPLES)
-    add_subdirectory(documentation)
+    add_subdirectory(examples)
 endif()
 
 # 安装规则
