@@ -15,6 +15,7 @@
 #include "liboai/core/response.h"
 
 #include <limits>
+#include <utility>
 
 namespace liboai {
     /*
@@ -28,9 +29,11 @@ namespace liboai {
         Functions(const Functions& other);
         Functions(Functions&& old) noexcept;
 
-        template <class... _Fname,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Fname, std::string_view>...>, int> = 0>
-        Functions(_Fname... function_names) { auto result = this->AddFunctions(function_names...); }
+        template <std::convertible_to<std::string_view>... Fname>
+        requires(std::convertible_to<Fname, std::string_view> && ...)
+        explicit Functions(Fname... function_names) {
+            auto result = this->AddFunctions(function_names...);
+        }
 
         ~Functions() = default;
 
@@ -51,11 +54,14 @@ namespace liboai {
         struct FunctionParameter {
             FunctionParameter() = default;
 
-            FunctionParameter(
-                std::string_view name,
-                std::string_view type,
-                std::string_view description,
-                std::optional<std::vector<std::string>> enumeration = std::nullopt) : name(name), type(type), description(description), enumeration(enumeration) {}
+            FunctionParameter(std::string_view name,
+                              std::string_view type,
+                              std::string_view description,
+                              std::optional<std::vector<std::string>> enumeration = std::nullopt)
+                : name(name),
+                  type(type),
+                  description(description),
+                  enumeration(std::move(enumeration)) {}
 
             FunctionParameter(const FunctionParameter& other) = default;
             FunctionParameter(FunctionParameter&& old) noexcept = default;
@@ -117,9 +123,10 @@ namespace liboai {
             @returns True/False denoting whether the functions were added
                 successfully.
         */
-        template <class... _Fnames,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Fnames, std::string_view>...>, int> = 0>
-        [[nodiscard]] bool AddFunctions(_Fnames... function_names) & noexcept(false) {
+        template <class... Fnames>
+        requires(std::conjunction_v<std::is_convertible<Fnames, std::string_view>...>)
+        [[nodiscard]]
+        bool AddFunctions(Fnames... function_names) & noexcept(false) {
             return this->AddFunctions({ function_names... });
         }
 
@@ -170,9 +177,10 @@ namespace liboai {
             @returns True/False denoting whether the functions were popped
                 successfully.
         */
-        template <class... _Fnames,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Fnames, std::string_view>...>, int> = 0>
-        [[nodiscard]] bool PopFunctions(_Fnames... function_names) & noexcept(false) {
+        template <class... Fnames>
+        requires(std::conjunction_v<std::is_convertible<Fnames, std::string_view>...>)
+        [[nodiscard]]
+        bool PopFunctions(Fnames... function_names) & noexcept(false) {
             return this->PopFunctions({ function_names... });
         }
 
@@ -232,9 +240,10 @@ namespace liboai {
             @returns True/False denoting whether the required parameters were set
                 successfully.
         */
-        template <class... _Rp,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Rp, std::string_view>...>, int> = 0>
-        [[nodiscard]] bool SetRequired(std::string_view target, _Rp... params) & noexcept(false) {
+        template <class... Rp>
+        requires(std::conjunction_v<std::is_convertible<Rp, std::string_view>...>)
+        [[nodiscard]]
+        bool SetRequired(std::string_view target, Rp... params) & noexcept(false) {
             return SetRequired(target, { params... });
         }
 
@@ -302,9 +311,10 @@ namespace liboai {
             @returns True/False denoting whether the required parameter was appended
                 successfully.
         */
-        template <class... _Rp,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Rp, std::string_view>...>, int> = 0>
-        [[nodiscard]] bool AppendRequired(std::string_view target, _Rp... params) & noexcept(false) {
+        template <class... Rp>
+        requires(std::conjunction_v<std::is_convertible<Rp, std::string_view>...>)
+        [[nodiscard]]
+        bool AppendRequired(std::string_view target, Rp... params) & noexcept(false) {
             return AppendRequired(target, { params... });
         }
 
@@ -353,9 +363,10 @@ namespace liboai {
             @returns True/False denoting whether the parameters were added
                 successfully.
         */
-        template <class... _Fp,
-                  std::enable_if_t<std::conjunction_v<std::is_same<_Fp, FunctionParameter>...>, int> = 0>
-        [[nodiscard]] bool SetParameters(std::string_view target, _Fp... parameters) & noexcept(false) {
+        template <class... Fp>
+        requires(std::conjunction_v<std::is_same<Fp, FunctionParameter>...>)
+        [[nodiscard]]
+        bool SetParameters(std::string_view target, Fp... parameters) & noexcept(false) {
             return SetParameters(target, { parameters... });
         }
 
@@ -406,9 +417,10 @@ namespace liboai {
             @returns True/False denoting whether the parameters were popped
                 successfully.
         */
-        template <class... _Pname,
-                  std::enable_if_t<std::conjunction_v<std::is_convertible<_Pname, std::string_view>...>, int> = 0>
-        [[nodiscard]] bool PopParameters(std::string_view target, _Pname... param_names) & noexcept(false) {
+        template <class... Pname>
+        requires(std::conjunction_v<std::is_convertible<Pname, std::string_view>...>)
+        [[nodiscard]]
+        bool PopParameters(std::string_view target, Pname... param_names) & noexcept(false) {
             return PopParameters(target, { param_names... });
         }
 
@@ -457,20 +469,23 @@ namespace liboai {
             @returns True/False denoting whether the parameters were appended
                 successfully.
         */
-        template <class... _Fp,
-                  std::enable_if_t<std::conjunction_v<std::is_same<_Fp, FunctionParameter>...>, int> = 0>
-        [[nodiscard]] bool AppendParameters(std::string_view target, _Fp... parameters) & noexcept(false) {
+        template <class... Fp>
+        requires(std::conjunction_v<std::is_same<Fp, FunctionParameter>...>)
+        [[nodiscard]]
+        bool AppendParameters(std::string_view target, Fp... parameters) & noexcept(false) {
             return AppendParameters(target, { parameters... });
         }
 
         /*
             @brief Returns the JSON object of the internal conversation.
         */
+        [[nodiscard]]
         LIBOAI_EXPORT const nlohmann::json& GetJSON() const& noexcept;
 
     private:
         using index = std::size_t;
-        [[nodiscard]] index GetFunctionIndex(std::string_view function_name) const& noexcept(false);
+        [[nodiscard]]
+        index GetFunctionIndex(std::string_view function_name) const& noexcept(false);
 
         nlohmann::json _functions;
     };
@@ -507,10 +522,10 @@ namespace liboai {
         Conversation();
         Conversation(const Conversation& other);
         Conversation(Conversation&& old) noexcept;
-        Conversation(std::string_view system_data);
         Conversation(std::string_view system_data, std::string_view user_data);
         Conversation(std::string_view system_data, std::initializer_list<std::string_view> user_data);
         Conversation(std::initializer_list<std::string_view> user_data);
+        explicit Conversation(std::string_view system_data);
         explicit Conversation(const std::vector<std::string>& user_data);
         ~Conversation() = default;
 
