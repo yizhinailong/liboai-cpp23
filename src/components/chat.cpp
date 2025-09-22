@@ -463,15 +463,12 @@ std::vector<std::string> liboai::Conversation::SplitStreamedData(std::string dat
         std::string temp;
         std::istringstream iss(data);
         while (std::getline(iss, temp)) {
-            if (temp.empty()) {
-                split_data.push_back(temp);
-            } else {
-                split_data.push_back(temp);
-            }
+            split_data.push_back(temp);
         }
 
         // remove empty strings from the vector
-        split_data.erase(std::remove_if(split_data.begin(), split_data.end(), [](const std::string& s) { return s.empty(); }), split_data.end());
+        auto new_end = std::ranges::remove_if(split_data, [](const std::string& s) { return s.empty(); });
+        split_data.erase(new_end.begin(), split_data.end());
 
         return split_data;
     }
