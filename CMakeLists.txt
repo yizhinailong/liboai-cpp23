@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
-project(liboai VERSION 4.0.1 LANGUAGES CXX)
+project(oai VERSION 4.0.1 LANGUAGES CXX)
 
 # 设置C++标准
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # MSVC特定设置
@@ -24,11 +24,11 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)
 
 # 创建库
-add_library(liboai)
-add_library(liboai::liboai ALIAS liboai)
+add_library(${PROJECT_NAME})
+add_library(liboai::liboai ALIAS ${PROJECT_NAME})
 
 # 使用target_sources添加源文件
-target_sources(liboai
+target_sources(${PROJECT_NAME}
     PRIVATE
     "src/components/audio.cpp"
     "src/components/azure.cpp"
@@ -47,7 +47,7 @@ target_sources(liboai
 )
 
 # 设置公共头文件
-target_sources(liboai
+target_sources(${PROJECT_NAME}
     PUBLIC
     FILE_SET HEADERS
     BASE_DIRS "include"
@@ -72,14 +72,14 @@ target_sources(liboai
 )
 
 # 设置包含目录
-target_include_directories(liboai
+target_include_directories(${PROJECT_NAME}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
 # 链接依赖
-target_link_libraries(liboai
+target_link_libraries(${PROJECT_NAME}
     PUBLIC
     nlohmann_json::nlohmann_json
     CURL::libcurl
@@ -121,7 +121,7 @@ endif()
 # 安装规则
 include(CMakePackageConfigHelpers)
 
-install(TARGETS liboai
+install(TARGETS ${PROJECT_NAME}
     EXPORT liboaiTargets
     FILE_SET HEADERS
     DESTINATION "include"
