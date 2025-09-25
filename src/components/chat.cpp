@@ -1,3 +1,6 @@
+#include <string>
+#include <utility>
+
 #include "liboai/components/chat.h"
 
 liboai::Conversation::Conversation() {
@@ -484,7 +487,7 @@ void liboai::Conversation::RemoveStrings(std::string& s, std::string_view p) con
     }
 }
 
-std::vector<std::string> liboai::Conversation::SplitFullStreamedData(std::string data) const noexcept(false) {
+std::vector<std::string> liboai::Conversation::SplitFullStreamedData(const std::string& data) const noexcept(false) {
     if (data.empty()) {
         return {};
     }
@@ -493,15 +496,12 @@ std::vector<std::string> liboai::Conversation::SplitFullStreamedData(std::string
     std::string temp;
     std::istringstream iss(data);
     while (std::getline(iss, temp)) {
-        if (temp.empty()) {
-            split_data.push_back(temp);
-        } else {
-            split_data.push_back(temp);
-        }
+        split_data.push_back(temp);
     }
 
     // remove empty strings from the vector
-    split_data.erase(std::remove_if(split_data.begin(), split_data.end(), [](const std::string& s) { return s.empty(); }), split_data.end());
+    auto new_end = std::ranges::remove_if(split_data, [](const std::string& s) { return s.empty(); });
+    split_data.erase(new_end.begin(), new_end.end());
 
     return split_data;
 }
@@ -613,18 +613,32 @@ bool liboai::Conversation::ParseStreamData(std::string data, std::string& delta_
     return true; // last message received
 }
 
-liboai::Response liboai::ChatCompletion::create(const std::string& model, Conversation& conversation, std::optional<std::string> function_call, std::optional<float> temperature, std::optional<float> top_p, std::optional<uint16_t> n, std::optional<ChatStreamCallback> stream, std::optional<std::vector<std::string>> stop, std::optional<uint16_t> max_tokens, std::optional<float> presence_penalty, std::optional<float> frequency_penalty, std::optional<std::unordered_map<std::string, int8_t>> logit_bias, std::optional<std::string> user) const& noexcept(false) {
+auto liboai::ChatCompletion::create(const std::string& model,
+                                    Conversation& conversation,
+                                    std::optional<std::string> function_call,
+                                    std::optional<float> temperature,
+                                    std::optional<float> top_p,
+                                    std::optional<uint16_t> n,
+                                    const std::optional<ChatStreamCallback>& stream,
+                                    const std::optional<std::vector<std::string>>& stop,
+                                    std::optional<uint16_t> max_tokens,
+                                    std::optional<float> presence_penalty,
+                                    std::optional<float> frequency_penalty,
+                                    const std::optional<std::unordered_map<std::string, int8_t>>& logit_bias,
+                                    const std::optional<std::string>& user) const& noexcept(false)
+    -> liboai::Response {
+
     liboai::JsonConstructor jcon;
     jcon.push_back("model", model);
-    jcon.push_back("temperature", std::move(temperature));
-    jcon.push_back("top_p", std::move(top_p));
-    jcon.push_back("n", std::move(n));
-    jcon.push_back("stop", std::move(stop));
-    jcon.push_back("max_tokens", std::move(max_tokens));
-    jcon.push_back("presence_penalty", std::move(presence_penalty));
-    jcon.push_back("frequency_penalty", std::move(frequency_penalty));
-    jcon.push_back("logit_bias", std::move(logit_bias));
-    jcon.push_back("user", std::move(user));
+    jcon.push_back("temperature", temperature);
+    jcon.push_back("top_p", top_p);
+    jcon.push_back("n", n);
+    jcon.push_back("stop", stop);
+    jcon.push_back("max_tokens", max_tokens);
+    jcon.push_back("presence_penalty", presence_penalty);
+    jcon.push_back("frequency_penalty", frequency_penalty);
+    jcon.push_back("logit_bias", logit_bias);
+    jcon.push_back("user", user);
 
     if (function_call) {
         if (function_call.value() == "none" || function_call.value() == "auto") {
@@ -644,7 +658,7 @@ liboai::Response liboai::ChatCompletion::create(const std::string& model, Conver
     if (stream) {
         _sscb = [stream, &conversation](std::string data, intptr_t userdata) -> bool {
             ChatStreamCallback _stream = stream.value();
-            return _stream(data, userdata, conversation);
+            return _stream(std::move(data), userdata, conversation);
         };
 
         jcon.push_back("stream", _sscb);
@@ -658,15 +672,13 @@ liboai::Response liboai::ChatCompletion::create(const std::string& model, Conver
         jcon.push_back("functions", conversation.GetFunctionsJSON()["functions"]);
     }
 
-    Response res;
-    res = this->Request(
+    Response res = this->Request(
         Method::HTTP_POST,
         this->openai_root_,
         "/chat/completions",
         "application/json",
         this->auth_.GetAuthorizationHeaders(),
-        netimpl::components::Body{
-            jcon.dump() },
+        netimpl::components::Body{ jcon.dump() },
         _sscb ? netimpl::components::WriteCallback{ std::move(_sscb) } : netimpl::components::WriteCallback{},
         this->auth_.GetProxies(),
         this->auth_.GetProxyAuth(),
@@ -675,8 +687,36 @@ liboai::Response liboai::ChatCompletion::create(const std::string& model, Conver
     return res;
 }
 
-liboai::FutureResponse liboai::ChatCompletion::create_async(const std::string& model, Conversation& conversation, std::optional<std::string> function_call, std::optional<float> temperature, std::optional<float> top_p, std::optional<uint16_t> n, std::optional<ChatStreamCallback> stream, std::optional<std::vector<std::string>> stop, std::optional<uint16_t> max_tokens, std::optional<float> presence_penalty, std::optional<float> frequency_penalty, std::optional<std::unordered_map<std::string, int8_t>> logit_bias, std::optional<std::string> user) const& noexcept(false) {
-    return std::async(std::launch::async, &liboai::ChatCompletion::create, this, model, std::ref(conversation), function_call, temperature, top_p, n, stream, stop, max_tokens, presence_penalty, frequency_penalty, logit_bias, user);
+auto liboai::ChatCompletion::create_async(const std::string& model,
+                                          Conversation& conversation,
+                                          std::optional<std::string> function_call,
+                                          std::optional<float> temperature,
+                                          std::optional<float> top_p,
+                                          std::optional<uint16_t> n,
+                                          std::optional<ChatStreamCallback> stream,
+                                          std::optional<std::vector<std::string>> stop,
+                                          std::optional<uint16_t> max_tokens,
+                                          std::optional<float> presence_penalty,
+                                          std::optional<float> frequency_penalty,
+                                          std::optional<std::unordered_map<std::string, int8_t>> logit_bias,
+                                          std::optional<std::string> user) const& noexcept(false)
+    -> liboai::FutureResponse {
+    return std::async(std::launch::async,
+                      &liboai::ChatCompletion::create,
+                      this,
+                      model,
+                      std::ref(conversation),
+                      function_call,
+                      temperature,
+                      top_p,
+                      n,
+                      stream,
+                      stop,
+                      max_tokens,
+                      presence_penalty,
+                      frequency_penalty,
+                      logit_bias,
+                      user);
 }
 
 namespace liboai {
@@ -704,7 +744,9 @@ liboai::Functions::Functions(Functions&& old) noexcept {
 }
 
 liboai::Functions& liboai::Functions::operator=(const Functions& other) {
-    this->_functions = other._functions;
+    if (this != &other) {
+        this->_functions = other._functions;
+    }
     return *this;
 }
 
@@ -726,7 +768,7 @@ bool liboai::Functions::AddFunction(std::string_view function_name) & noexcept(f
 
 bool liboai::Functions::AddFunctions(std::initializer_list<std::string_view> function_names) & noexcept(false) {
     if (function_names.size() > 0) {
-        for (auto& function_name : function_names) {
+        for (const auto& function_name : function_names) {
             if (this->GetFunctionIndex(function_name) == -1) {
                 this->_functions["functions"].push_back({
                     { "name", function_name }
@@ -765,7 +807,7 @@ bool liboai::Functions::PopFunction(std::string_view function_name) & noexcept(f
 
 bool liboai::Functions::PopFunctions(std::initializer_list<std::string_view> function_names) & noexcept(false) {
     if (function_names.size() > 0) {
-        for (auto& function_name : function_names) {
+        for (const auto& function_name : function_names) {
             auto index = this->GetFunctionIndex(function_name);
 
             if (index != -1) {
@@ -779,9 +821,9 @@ bool liboai::Functions::PopFunctions(std::initializer_list<std::string_view> fun
     return false; // functions not removed (size 0)
 }
 
-bool liboai::Functions::PopFunctions(std::vector<std::string> function_names) & noexcept(false) {
+bool liboai::Functions::PopFunctions(const std::vector<std::string>& function_names) & noexcept(false) {
     if (function_names.size() > 0) {
-        for (auto& function_name : function_names) {
+        for (const auto& function_name : function_names) {
             auto index = this->GetFunctionIndex(function_name);
 
             if (index != -1) {
@@ -827,7 +869,7 @@ bool liboai::Functions::SetRequired(std::string_view target, std::initializer_li
 
     if (i != -1 && params.size() > 0) {
         if (this->_functions["functions"][i].contains("parameters")) {
-            this->_functions["functions"][i]["parameters"]["required"] = std::move(params);
+            this->_functions["functions"][i]["parameters"]["required"] = params;
             return true; // required parameters set successfully
         }
     }
@@ -884,7 +926,7 @@ bool liboai::Functions::AppendRequired(std::string_view target, std::initializer
     if (i != -1 && params.size() > 0) {
         if (this->_functions["functions"][i].contains("parameters")) {
             if (this->_functions["functions"][i]["parameters"].contains("required")) {
-                for (auto& param : params) {
+                for (const auto& param : params) {
                     this->_functions["functions"][i]["parameters"]["required"].push_back(param);
                 }
 
@@ -950,7 +992,7 @@ bool liboai::Functions::SetParameters(std::string_view target, std::initializer_
             this->_functions["functions"][i]["parameters"]["properties"] = nlohmann::json::object();
             this->_functions["functions"][i]["parameters"]["type"] = "object";
 
-            for (auto& parameter : parameters) {
+            for (const auto& parameter : parameters) {
                 if (!this->_functions["functions"][i]["parameters"]["properties"].contains(parameter.name)) {
                     this->_functions["functions"][i]["parameters"]["properties"].push_back(
                         {
@@ -1021,7 +1063,7 @@ bool liboai::Functions::PopParameters(std::string_view target, std::initializer_
 
     if (i != -1) {
         if (this->_functions["functions"][i].contains("parameters")) {
-            for (auto& param_name : param_names) {
+            for (const auto& param_name : param_names) {
                 if (this->_functions["functions"][i]["parameters"]["properties"].contains(param_name)) {
                     this->_functions["functions"][i]["parameters"]["properties"].erase(param_name);
                 }
@@ -1034,12 +1076,12 @@ bool liboai::Functions::PopParameters(std::string_view target, std::initializer_
     return false; // parameters not removed
 }
 
-bool liboai::Functions::PopParameters(std::string_view target, std::vector<std::string> param_names) & noexcept(false) {
+bool liboai::Functions::PopParameters(std::string_view target, const std::vector<std::string>& param_names) & noexcept(false) {
     index i = this->GetFunctionIndex(target);
 
     if (i != -1) {
         if (this->_functions["functions"][i].contains("parameters")) {
-            for (auto& param_name : param_names) {
+            for (const auto& param_name : param_names) {
                 if (this->_functions["functions"][i]["parameters"]["properties"].contains(param_name)) {
                     this->_functions["functions"][i]["parameters"]["properties"].erase(param_name);
                 }
@@ -1082,7 +1124,7 @@ bool liboai::Functions::AppendParameters(std::string_view target, std::initializ
 
     if (i != -1) {
         if (this->_functions["functions"][i].contains("parameters")) {
-            for (auto& parameter : parameters) {
+            for (const auto& parameter : parameters) {
                 if (!this->_functions["functions"][i]["parameters"]["properties"].contains(parameter.name)) {
                     this->_functions["functions"][i]["parameters"]["properties"].push_back(
                         {
@@ -1136,18 +1178,14 @@ const nlohmann::json& liboai::Functions::GetJSON() const& noexcept {
 }
 
 liboai::Functions::index liboai::Functions::GetFunctionIndex(std::string_view function_name) const& noexcept(false) {
-    index i = 0;
-
     if (!this->_functions.empty()) {
-        for (auto& [key, value] : this->_functions["functions"].items()) {
-            if (value.contains("name")) {
-                if (value["name"].get<std::string>() == function_name) {
-                    return i;
-                }
+        const auto functions = this->_functions["functions"];
+        for (auto it = functions.begin(); it != functions.end(); ++it) {
+            if (it.value().contains("name") && it.value()["name"].get<std::string>() == function_name) {
+                return static_cast<index>(std::distance(functions.begin(), it));
             }
-            i++;
         }
     }
 
-    return -1;
+    return static_cast<index>(-1);
 }

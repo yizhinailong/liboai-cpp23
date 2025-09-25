@@ -166,7 +166,7 @@ namespace liboai {
                 successfully.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool PopFunctions(std::vector<std::string> function_names) & noexcept(false);
+        LIBOAI_EXPORT bool PopFunctions(const std::vector<std::string>& function_names) & noexcept(false);
 
         /*
             @brief Same as PopFunction, but allows for popping multiple
@@ -406,7 +406,8 @@ namespace liboai {
                 successfully.
         */
         [[nodiscard]]
-        LIBOAI_EXPORT bool PopParameters(std::string_view target, std::vector<std::string> param_names) & noexcept(false);
+        LIBOAI_EXPORT bool PopParameters(std::string_view target,
+                                         const std::vector<std::string>& param_names) & noexcept(false);
 
         /*
             @brief Pops one or more of a function's set parameters.
@@ -846,7 +847,7 @@ namespace liboai {
             @returns vector of string that contains the split data that will contains the last termination string(data: "DONE").
         */
         [[nodiscard]]
-        std::vector<std::string> SplitFullStreamedData(std::string data) const noexcept(false);
+        std::vector<std::string> SplitFullStreamedData(const std::string& data) const noexcept(false);
         bool ParseStreamData(std::string data, std::string& delta, bool& completed);
 
         nlohmann::json _conversation;
@@ -917,13 +918,13 @@ namespace liboai {
             std::optional<float> temperature = std::nullopt,
             std::optional<float> top_p = std::nullopt,
             std::optional<uint16_t> n = std::nullopt,
-            std::optional<ChatStreamCallback> stream = std::nullopt,
-            std::optional<std::vector<std::string>> stop = std::nullopt,
+            const std::optional<ChatStreamCallback>& stream = std::nullopt,
+            const std::optional<std::vector<std::string>>& stop = std::nullopt,
             std::optional<uint16_t> max_tokens = std::nullopt,
             std::optional<float> presence_penalty = std::nullopt,
             std::optional<float> frequency_penalty = std::nullopt,
-            std::optional<std::unordered_map<std::string, int8_t>> logit_bias = std::nullopt,
-            std::optional<std::string> user = std::nullopt) const& noexcept(false);
+            const std::optional<std::unordered_map<std::string, int8_t>>& logit_bias = std::nullopt,
+            const std::optional<std::string>& user = std::nullopt) const& noexcept(false);
 
         /*
             @brief Asynchronously creates a completion for the chat message.
