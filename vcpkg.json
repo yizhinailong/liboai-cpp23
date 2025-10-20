@@ -1,0 +1,8 @@
+{
+  "name": "liboai-cpp23",
+  "version-string": "4.0.1",
+  "dependencies": [
+    "curl",
+    "nlohmann-json"
+  ]
+}
