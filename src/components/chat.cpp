@@ -1,7 +1,7 @@
+#include "liboai/components/chat.h"
+
 #include <string>
 #include <utility>
-
-#include "liboai/components/chat.h"
 
 liboai::Conversation::Conversation() {
     this->_conversation["messages"] = nlohmann::json::array();
