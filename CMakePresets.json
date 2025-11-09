@@ -1,0 +1,146 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "displayName": "Base Configuration",
+      "description": "Base configuration with vcpkg toolchain",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "environment": {
+        "VCPKG_DEFAULT_TRIPLET": "x64-windows"
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+      },
+      "environment": {
+        "VCPKG_DEFAULT_TRIPLET": "x64-linux",
+        "CMAKE_BUILD_PARALLEL_LEVEL": "16"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "inherits": "windows-base",
+      "displayName": "Windows Debug",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "windows-release",
+      "inherits": "windows-base",
+      "displayName": "Windows Release",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS_RELEASE": "/O3 /DNDEBUG",
+        "CMAKE_CXX_FLAGS_RELEASE": "/O3 /DNDEBUG"
+      }
+    },
+    {
+      "name": "linux-debug-gnu",
+      "inherits": "linux-base",
+      "displayName": "Linux Debug GNU",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "linux-debug-clang",
+      "inherits": "linux-base",
+      "displayName": "Linux Debug Clang",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_EXAMPLES": "ON"
+      }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "linux-base",
+      "displayName": "Linux Release",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+        "CMAKE_C_FLAGS_RELEASE": "-O3 -DNDEBUG"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "base-build",
+      "hidden": true,
+      "jobs": 16
+    },
+    {
+      "name": "windows-debug",
+      "inherits": "base-build",
+      "configurePreset": "windows-debug",
+      "displayName": "Build Windows Debug",
+      "description": "Build the project in Debug mode on Windows",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-release",
+      "inherits": "base-build",
+      "configurePreset": "windows-release",
+      "displayName": "Build Windows Release",
+      "description": "Build the project in Release mode on Windows",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-debug-gnu",
+      "inherits": "base-build",
+      "configurePreset": "linux-debug-gnu",
+      "displayName": "Build Linux Debug GNU",
+      "description": "Build the project in Debug mode on Linux with GNU toolchain",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-debug-clang",
+      "inherits": "base-build",
+      "configurePreset": "linux-debug-clang",
+      "displayName": "Build Linux Debug Clang",
+      "description": "Build the project in Debug mode on Linux with Clang toolchain",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-release",
+      "inherits": "base-build",
+      "configurePreset": "linux-release",
+      "displayName": "Build Linux Release",
+      "description": "Build the project in Release mode on Linux",
+      "configuration": "Release"
+    }
+  ]
+}

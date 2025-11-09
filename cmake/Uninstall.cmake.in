@@ -1,0 +1,21 @@
+# 卸载功能模板
+if(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest")
+endif()
+
+file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+
+foreach(file ${files})
+    if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+        message(STATUS "Removing: $ENV{DESTDIR}${file}")
+        exec_program(
+            "@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
+            OUTPUT_VARIABLE stdout
+            RETURN_VALUE result
+        )
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to remove $ENV{DESTDIR}${file}")
+        endif()
+    endif()
+endforeach()

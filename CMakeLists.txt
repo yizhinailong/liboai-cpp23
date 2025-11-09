@@ -1,69 +1,34 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.23)
 project(oai VERSION 4.0.1 LANGUAGES CXX)
 
-# 设置C++标准
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# MSVC特定设置
+# MSVC 特定设置
 if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
 
-if(WIN32)
-    set(VCPKG_CMAKE_PATH $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "Location of vcpkg.cmake")
-    include(${VCPKG_CMAKE_PATH})
-    find_package(ZLIB REQUIRED)
-    find_package(nlohmann_json CONFIG REQUIRED)
-    find_package(CURL REQUIRED)
-endif()
-
-
 # 查找依赖
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(CURL REQUIRED)
+find_package(CURL CONFIG REQUIRED)
 
 # 创建库
 add_library(${PROJECT_NAME})
-add_library(liboai::liboai ALIAS ${PROJECT_NAME})
+add_library(liboai::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-# 使用target_sources添加源文件
-target_sources(${PROJECT_NAME}
-    PRIVATE
-    # "src/components/audio.cpp"
-    # "src/components/azure.cpp"
-    "src/components/chat.cpp"
-    # "src/components/completions.cpp"
-    # "src/components/edits.cpp"
-    # "src/components/embeddings.cpp"
-    # "src/components/files.cpp"
-    # "src/components/fine_tunes.cpp"
-    # "src/components/images.cpp"
-    # "src/components/models.cpp"
-    # "src/components/moderations.cpp"
+# 定义源文件变量
+set(CORE_SOURCES
     "src/core/authorization.cpp"
     "src/core/netimpl.cpp"
     "src/core/response.cpp"
 )
 
-# 设置公共头文件
-target_sources(${PROJECT_NAME}
-    PUBLIC
-    FILE_SET HEADERS
-    BASE_DIRS "include"
-    FILES
+set(COMPONENTS_SOURCES
+    "src/components/chat.cpp"
+)
+
+# 定义头文件变量
+set(HEADER_FILES
     "include/liboai/liboai.h"
-    # "include/liboai/components/audio.h"
-    # "include/liboai/components/azure.h"
     "include/liboai/components/chat.h"
-    # "include/liboai/components/completions.h"
-    # "include/liboai/components/edits.h"
-    # "include/liboai/components/embeddings.h"
-    # "include/liboai/components/files.h"
-    # "include/liboai/components/fine_tunes.h"
-    # "include/liboai/components/images.h"
-    # "include/liboai/components/models.h"
-    # "include/liboai/components/moderations.h"
     "include/liboai/core/authorization.h"
     "include/liboai/core/exception.h"
     "include/liboai/core/netimpl.h"
@@ -71,7 +36,18 @@ target_sources(${PROJECT_NAME}
     "include/liboai/core/response.h"
 )
 
-# 设置包含目录
+# 源文件配置
+target_sources(${PROJECT_NAME}
+    PRIVATE
+    ${CORE_SOURCES}
+    ${COMPONENTS_SOURCES}
+    PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS "include"
+    FILES ${HEADER_FILES}
+)
+
+# 包含目录
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -85,69 +61,17 @@ target_link_libraries(${PROJECT_NAME}
     CURL::libcurl
 )
 
-# 组织Visual Studio中的文件
+# IDE 组织
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# 将源文件分组用于IDE
-source_group("components" FILES
-    # "src/components/audio.cpp"
-    # "src/components/azure.cpp"
-    "src/components/chat.cpp"
-    # "src/components/completions.cpp"
-    # "src/components/edits.cpp"
-    # "src/components/embeddings.cpp"
-    # "src/components/files.cpp"
-    # "src/components/fine_tunes.cpp"
-    # "src/components/images.cpp"
-    # "src/components/models.cpp"
-    # "src/components/moderations.cpp"
-)
-
-source_group("core" FILES
-    "src/core/authorization.cpp"
-    "src/core/netimpl.cpp"
-    "src/core/response.cpp"
-)
-
-# IDE设置
+source_group("components" FILES ${COMPONENTS_SOURCES})
+source_group("core" FILES ${CORE_SOURCES})
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT liboai)
 
-# 构建示例选项
+# 构建示例
 option(BUILD_EXAMPLES "Build example applications" ON)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-# 安装规则
-include(CMakePackageConfigHelpers)
-
-install(TARGETS ${PROJECT_NAME}
-    EXPORT liboaiTargets
-    FILE_SET HEADERS
-    DESTINATION "include"
-)
-
-install(EXPORT liboaiTargets
-    FILE "liboaiTargets.cmake"
-    NAMESPACE "liboai::"
-    DESTINATION "lib/cmake/liboai"
-)
-
-# 创建配置文件内容
-configure_package_config_file(
-    "cmake/Config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/liboaiConfig.cmake"
-    INSTALL_DESTINATION "lib/cmake/liboai"
-)
-
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/liboaiConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY "AnyNewerVersion"
-)
-
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/liboaiConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/liboaiConfigVersion.cmake"
-    DESTINATION "lib/cmake/liboai"
-)
+# 引入独立安装规则模块
+include(cmake/Install.cmake)
