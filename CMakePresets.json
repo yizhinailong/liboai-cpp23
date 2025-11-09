@@ -70,7 +70,9 @@
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_BUILD_TYPE": "Debug",
-        "BUILD_EXAMPLES": "ON"
+        "BUILD_EXAMPLES": "ON",
+        "CMAKE_CXX_MODULE_STD": "1",
+        "CMAKE_EXPERIMENTAL_CXX_IMPORT_STD": "d0edc3af-4c50-42ea-a356-e2862fe7a444"
       }
     },
     {
@@ -82,7 +84,9 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_BUILD_TYPE": "Debug",
-        "BUILD_EXAMPLES": "ON"
+        "BUILD_EXAMPLES": "ON",
+        "CMAKE_CXX_MODULE_STD": "1",
+        "CMAKE_EXPERIMENTAL_CXX_IMPORT_STD": "d0edc3af-4c50-42ea-a356-e2862fe7a444"
       }
     },
     {
