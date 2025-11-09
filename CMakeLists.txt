@@ -63,9 +63,16 @@ target_link_libraries(${PROJECT_NAME}
 
 # IDE 组织
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-source_group("components" FILES ${COMPONENTS_SOURCES})
-source_group("core" FILES ${CORE_SOURCES})
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT liboai)
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    PREFIX "Source Files"
+    FILES ${COMPONENTS_SOURCES} ${CORE_SOURCES}
+)
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PREFIX "Header Files"
+    FILES ${HEADER_FILES}
+)
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_SHOW_ALL_FILES ON)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 # 构建示例
 option(BUILD_EXAMPLES "Build example applications" ON)
