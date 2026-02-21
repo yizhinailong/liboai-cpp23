@@ -21,6 +21,22 @@ target("oai", function()
     add_files("src/**.cppm", {public = true})
 
     add_packages("nlohmann_json", "cpr", {public = true})
+
+    -- Linux requires Clang for C++23 modules (GCC has TU-local entity issues with header-only libs)
+    on_config(function (target)
+        if is_plat("linux") then
+            local tc = get_config("toolchain") or ""
+            local cxx = target:tool("cxx") or ""
+            if tc == "gcc" or (tc == "" and cxx:find("g++", 1, true)) then
+                raise([[
+liboai C++23 modules require Clang on Linux.
+
+Please run:
+    xmake f --toolchain=clang -c -y
+]])
+            end
+        end
+    end)
 end)
 
 

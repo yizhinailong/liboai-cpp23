@@ -101,8 +101,8 @@ This library uses C++23 standard library modules (`import std;`) and requires a 
 | **Windows** | MSVC | VS 2022 17.5+ | `import std;` supported via `/std:c++20` + `/experimental:module` |
 | **Windows** | clang-cl | LLVM 16+ | MSVC ABI compatibility, recommended for cross-platform builds |
 | **macOS** | Clang | LLVM 16+ | Install via Homebrew: `brew install llvm` |
-| **Linux** | Clang | LLVM 16+ | Preferred for C++23 modules support |
-| **Linux** | GCC | 13+ | Limited `import std;` support, Clang recommended |
+| **Linux** | Clang | LLVM 16+ | **Required** for C++23 modules support |
+| **Linux** | GCC | 13+ | **Not supported** - GCC has issues with C++23 modules and header-only libraries |
 
 <h4>macOS Setup</h4>
 
@@ -179,6 +179,17 @@ xmake -DBUILD_EXAMPLES=ON
 # Build in release mode
 xmake -r
 ```
+
+**Linux builds require Clang:**
+
+```bash
+xmake f --toolchain=clang -c -y
+xmake -v
+```
+
+**Troubleshooting build errors:**
+
+If you see errors like "exposes TU-local entity" from nlohmann_json headers, you are using GCC. GCC has known issues with C++23 modules when importing header-only libraries. Switch to Clang to fix this.
 
 <h3>Installation</h3>
 
