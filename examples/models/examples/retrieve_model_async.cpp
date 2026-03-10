@@ -7,7 +7,7 @@ int main() {
     OpenAI oai;
     if (oai.auth.SetKeyEnv("OPENAI_API_KEY")) {
         // call async method; returns a future
-        auto fut = oai.Model->RetrieveAsync("text-davinci-003");
+        auto fut = oai.Model->RetrieveAsync("gpt-3.5-turbo");
 
         // do other work...
 

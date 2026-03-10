@@ -118,7 +118,9 @@ export namespace liboai {
             const std::string& from,
             cpr::Header authorization
         ) noexcept -> FutureExpected<bool> {
-            return std::async(std::launch::async, [&]() -> Result<bool> {
+            return std::async(std::launch::async,
+                              [to, from, authorization = std::move(authorization)]() mutable
+                              -> Result<bool> {
                 std::ofstream file(to, std::ios::binary);
                 auto cpr_res = cpr::Download(file, cpr::Url{ from }, std::move(authorization));
                 auto res = to_liboai_response(std::move(cpr_res));
@@ -137,7 +139,10 @@ export namespace liboai {
             cpr::Header authorization,
             cpr::Session& session
         ) noexcept -> FutureExpected<bool> {
-            return std::async(std::launch::async, [&]() -> Result<bool> {
+            return std::async(
+                std::launch::async,
+                [to, from, authorization = std::move(authorization), &session]() mutable
+                -> Result<bool> {
                 std::ofstream file(to, std::ios::binary);
                 session.SetUrl(cpr::Url{ from });
                 session.SetHeader(authorization);

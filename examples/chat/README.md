@@ -1,7 +1,7 @@
 <h1>Chat</h1>
 <p>The <code>ChatCompletion</code> class is exported from the <code>liboai</code> module at <code>liboai::ChatCompletion</code>, and its interface can ideally be accessed through a <code>liboai::OpenAI</code> object.
 
-This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://beta.openai.com/docs/api-reference/chat">Chat</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
+This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://platform.openai.com/docs/api-reference/chat">Chat</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
 - Given a chat conversation, the model will return a chat completion response.
 
 > **Note**

@@ -1223,7 +1223,16 @@ export namespace liboai {
 
         // if history is non-empty
         if (!history.empty()) {
-            nlohmann::json j = nlohmann::json::parse(history);
+            nlohmann::json j;
+            try {
+                j = nlohmann::json::parse(history);
+            } catch (const nlohmann::json::parse_error& e) {
+                return std::unexpected(OpenAIError::parse_error(e.what()));
+            } catch (const std::exception& e) {
+                return std::unexpected(OpenAIError::parse_error(e.what()));
+            } catch (...) {
+                return std::unexpected(OpenAIError::parse_error("Unknown JSON parse error"));
+            }
             if (j.contains("choices")) { // top level, several messages
                 for (const auto& choice : j["choices"].items()) {
                     if (choice.value().contains("message")) {
@@ -1276,7 +1285,7 @@ export namespace liboai {
                 }
             } else if (j.contains("message")) { // mid level, single message
                 if (j["message"].contains("role") && j["message"].contains("content")) {
-                    if (j["message"]["content"].is_null()) {
+                    if (!j["message"]["content"].is_null()) {
                         EraseExtra();
                         this->m_conversation["messages"].push_back(
                             {
@@ -1317,37 +1326,37 @@ export namespace liboai {
                 }
                 return false;                                         // response is not valid
             } else if (j.contains("role") && j.contains("content")) { // low level, single message
-                if (j["message"]["content"].is_null()) {
+                if (!j["content"].is_null()) {
                     EraseExtra();
                     this->m_conversation["messages"].push_back(
                         {
-                            {    "role",    j["message"]["role"] },
-                            { "content", j["message"]["content"] }
+                            {    "role",    j["role"] },
+                            { "content", j["content"] }
                     }
                     );
                 } else {
                     EraseExtra();
                     this->m_conversation["messages"].push_back(
                         {
-                            {    "role", j["message"]["role"] },
+                            {    "role", j["role"] },
                             { "content",                   "" }
                     }
                     );
                 }
 
-                if (j["message"].contains("function_call")) {
+                if (j.contains("function_call")) {
                     // if a function_call is present in the response, the
                     // conversation is not updated as there is no assistant
                     // response to be added. However, we do add the function
                     // information
                     this->m_conversation["function_call"] = nlohmann::json::object();
-                    if (j["message"]["function_call"].contains("name")) {
+                    if (j["function_call"].contains("name")) {
                         this->m_conversation["function_call"]["name"] =
-                            j["message"]["function_call"]["name"];
+                            j["function_call"]["name"];
                     }
-                    if (j["message"]["function_call"].contains("arguments")) {
+                    if (j["function_call"].contains("arguments")) {
                         this->m_conversation["function_call"]["arguments"] =
-                            j["message"]["function_call"]["arguments"];
+                            j["function_call"]["arguments"];
                     }
 
                     this->m_last_resp_is_fc = true;

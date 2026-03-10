@@ -440,7 +440,7 @@ export namespace liboai {
             std::filesystem::file_size(path) > 0) {
             std::ifstream file(path);
             if (file.is_open()) {
-                std::getline(file, this->m_key);
+                std::getline(file, this->m_org);
                 if (this->m_openai_auth_headers.count("OpenAI-Organization") > 0) {
                     this->m_openai_auth_headers.erase("OpenAI-Organization");
                 }

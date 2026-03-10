@@ -277,7 +277,7 @@ export namespace liboai {
     ) const& noexcept -> Result<bool> {
         return Network::Download(
             save_to,
-            ("https://api.openai.com/v1/files/" + file_id + "/content"),
+            (this->GetOpenAIRoot() + "/files/" + file_id + "/content"),
             this->m_auth.GetAuthorizationHeaders()
         );
     }

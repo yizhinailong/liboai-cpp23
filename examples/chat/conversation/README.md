@@ -237,7 +237,7 @@ int main() {
 </tr>
 </table>
 
-Keep in mind that it is **highly** important to set the system data before user data. Furthermore, it is important to note that, according to OpenAI, some models (such as gpt-3.5-turbo-0301) do not always pay attention to this system data. As a result, it may be more efficient to set guiding data as user data like so:
+Keep in mind that it is **highly** important to set the system data before user data. Furthermore, it is important to note that, according to OpenAI, some models (such as gpt-3.5-turbo) do not always pay attention to this system data. As a result, it may be more efficient to set guiding data as user data like so:
 <table>
 <tr>
 <th>Alternate Ways to Guide</th>

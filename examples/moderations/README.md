@@ -1,7 +1,7 @@
 <h1>Moderations</h1>
 <p>The <code>Moderations</code> class is defined in <code>moderations.hpp</code> at <code>liboai::Moderations</code>, and its interface can ideally be accessed through a <code>liboai::OpenAI</code> object.
 
-This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://beta.openai.com/docs/api-reference/moderations">Moderations</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
+This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://platform.openai.com/docs/api-reference/moderations">Moderations</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
 - Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
 
 <br>

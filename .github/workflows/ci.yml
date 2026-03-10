@@ -41,10 +41,24 @@ jobs:
         run: xmake -v
 
       - name: Build representative examples
+        # Warning policy staging:
+        # - Stage 0 (current): keep representative examples as compatibility probes.
+        # - Stage 1 (current): enforce warnings-as-errors for regression harness
+        #   targets only (configured in tests/xmake.lua with set_warnings("all", "error")).
+        # - Stage 2 (future): expand warning-as-error coverage after baseline cleanup.
         run: |
           xmake build authorization_set_key
-          xmake build images_generate_image
           xmake build chat_create_chat_completion
+          xmake build images_generate_image
+
+      - name: Build targeted regression harness
+        run: xmake build regression
+
+      - name: Run targeted regression harness
+        run: |
+          xmake run test_authorization
+          xmake run test_chat_update
+          xmake run test_files_download
 
       - name: Print compiler version
         shell: bash

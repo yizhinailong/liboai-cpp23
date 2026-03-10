@@ -1,7 +1,7 @@
 <h1>Models</h1>
 <p>The <code>Models</code> class is defined in <code>models.hpp</code> at <code>liboai::Models</code>, and its interface can ideally be accessed through a <code>liboai::OpenAI</code> object.
 
-This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://beta.openai.com/docs/api-reference/models">Models</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
+This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://platform.openai.com/docs/api-reference/models">Models</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
 - List and describe the various models available in the API. 
 
 <br>

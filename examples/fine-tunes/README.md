@@ -1,7 +1,7 @@
 <h1>Fine-Tunes</h1>
 <p>The <code>FineTunes</code> class is defined in <code>fine_tunes.hpp</code> at <code>liboai::FineTunes</code>, and its interface can ideally be accessed through a <code>liboai::OpenAI</code> object.
 
-This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://beta.openai.com/docs/api-reference/fine-tunes">Fine-tunes</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
+This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://platform.openai.com/docs/api-reference/fine-tunes">Fine-tunes</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
 - Manage fine-tuning jobs to tailor a model to your specific training data.
 
 <br>

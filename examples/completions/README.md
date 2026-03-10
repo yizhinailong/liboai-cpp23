@@ -1,7 +1,7 @@
 <h1>Completions</h1>
 <p>The <code>Completions</code> class is exported from the <code>liboai</code> module at <code>liboai::Completions</code>, and its interface can ideally be accessed through a <code>liboai::OpenAI</code> object.
 
-This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://beta.openai.com/docs/api-reference/completions">Completions</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
+This class and its associated <code>liboai::OpenAI</code> interface allow access to the <a href="https://platform.openai.com/docs/api-reference/completions">Completions</a> endpoint of the OpenAI API; this endpoint's functionality can be found below.</p>
 - Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of alternative tokens at each position.
 
 <br>

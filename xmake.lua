@@ -11,6 +11,12 @@ option("build_examples")
     set_description("Build example programs")
 option_end()
 
+option("build_tests")
+    set_default(true)
+    set_showmenu(true)
+    set_description("Build regression test programs")
+option_end()
+
 target("oai", function()
     set_kind("static")
     set_languages("c++23")
@@ -42,4 +48,8 @@ end)
 
 if get_config("build_examples") then
     includes("examples")
+end
+
+if get_config("build_tests") then
+    includes("tests")
 end
