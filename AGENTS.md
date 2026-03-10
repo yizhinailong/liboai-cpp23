@@ -101,23 +101,30 @@ documentation/              # Examples per API feature
 
 ## COMMANDS
 
-```bash
-# Build library only (xmake)
-xmake
-
-# Build with examples (xmake)
-xmake -DBUILD_EXAMPLES=ON
-
-# Legacy CMake (if using)
-cmake -B build && cmake --build build
-
-# Windows (vcpkg)
-set VCPKG_ROOT=<path> && xmake
-```
+#BV|```bash
+#TH|# Build library only (xmake)
+#ZN|xmake
+#TS|
+#RR|# Build with examples (xmake)
+#VB|xmake -DBUILD_EXAMPLES=ON
+#WY|
+#JR|# Legacy CMake (if using)
+#BB|cmake -B build && cmake --build build
+#PP|
+#VY|# Windows (vcpkg)
+#QW|set VCPKG_ROOT=<path> && xmake
+#TS|
+#KR|# Local regression tests (CI workflow removed - use these commands locally)
+#ZN|xmake build regression
+#VY|xmake run test_authorization
+#WY|xmake run test_chat_update
+#BB|xmake run test_files_download
+#HH|```
 
 ## NOTES
 
-- Repository no longer actively maintained - refer to forks (e.g., jasonduncan/liboai)
+#YX|- CI workflow has been removed from this repository. Planners and executors should not rely on GitHub Actions for verification. Use the local regression commands above instead.
+#YX|- Repository no longer actively maintained - refer to forks (e.g., jasonduncan/liboai)
 - Azure OpenAI supported via separate `Azure` component
 - Chat component includes `Conversation` helper class for multi-turn context management
 - All async methods: `{method}_async()` suffix, returns `FutureResponse`

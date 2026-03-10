@@ -191,6 +191,30 @@ xmake -v
 
 If you see errors like "exposes TU-local entity" from nlohmann_json headers, you are using GCC. GCC has known issues with C++23 modules when importing header-only libraries. Switch to Clang to fix this.
 
+<h3>Local Verification</h3>
+
+<p>This repository no longer uses CI automation. All verification must be performed locally using the following commands.</p>
+
+<details>
+<summary><b>Verification Commands</b></summary>
+
+```bash
+# Configure build (Linux requires Clang)
+xmake f --toolchain=clang -c -y
+
+# Build the project
+xmake -v
+
+# Build regression test target
+xmake build regression
+
+# Run individual verification tests
+xmake run test_authorization
+xmake run test_chat_update
+xmake run test_files_download
+```
+
+</details>
 <h3>Installation</h3>
 
 Install the library to a specific prefix:
