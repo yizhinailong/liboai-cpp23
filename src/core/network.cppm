@@ -16,15 +16,16 @@
 module;
 
 // Standard library headers
+#include <algorithm>
 #include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <fstream>
 #include <future>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <type_traits>
-
 // Third-party library headers
 #include <cpr/cpr.h>
 
@@ -118,9 +119,7 @@ export namespace liboai {
             const std::string& from,
             cpr::Header authorization
         ) noexcept -> FutureExpected<bool> {
-            return std::async(std::launch::async,
-                              [to, from, authorization = std::move(authorization)]() mutable
-                              -> Result<bool> {
+            return std::async(std::launch::async, [to, from, authorization = std::move(authorization)]() mutable -> Result<bool> {
                 std::ofstream file(to, std::ios::binary);
                 auto cpr_res = cpr::Download(file, cpr::Url{ from }, std::move(authorization));
                 auto res = to_liboai_response(std::move(cpr_res));
@@ -142,22 +141,23 @@ export namespace liboai {
             return std::async(
                 std::launch::async,
                 [to, from, authorization = std::move(authorization), &session]() mutable
-                -> Result<bool> {
-                std::ofstream file(to, std::ios::binary);
-                session.SetUrl(cpr::Url{ from });
-                session.SetHeader(authorization);
-                auto cpr_res = cpr::Download(
-                    file,
-                    cpr::Url{ session.GetFullRequestUrl() },
-                    std::move(authorization)
-                );
-                auto res = to_liboai_response(std::move(cpr_res));
+                    -> Result<bool> {
+                    std::ofstream file(to, std::ios::binary);
+                    session.SetUrl(cpr::Url{ from });
+                    session.SetHeader(authorization);
+                    auto cpr_res = cpr::Download(
+                        file,
+                        cpr::Url{ session.GetFullRequestUrl() },
+                        std::move(authorization)
+                    );
+                    auto res = to_liboai_response(std::move(cpr_res));
 
-                if (!res) {
-                    return std::unexpected(res.error());
+                    if (!res) {
+                        return std::unexpected(res.error());
+                    }
+                    return res->status_code == 200;
                 }
-                return res->status_code == 200;
-            });
+            );
         }
 
     protected:
@@ -168,7 +168,7 @@ export namespace liboai {
         };
 
         template <class... Params>
-        requires (... && !std::is_lvalue_reference_v<Params>)
+        requires(... && !std::is_lvalue_reference_v<Params>)
         [[nodiscard]]
         auto Request(
             const Method& http_method,
@@ -183,9 +183,7 @@ export namespace liboai {
             };
             if (headers) {
                 if (headers.value().size() != 0) {
-                    for (auto& i : headers.value()) {
-                        _headers.insert(std::move(i));
-                    }
+                    std::ranges::for_each(headers.value(), [&](auto&& i) { _headers.insert(std::move(i)); });
                 }
             }
 

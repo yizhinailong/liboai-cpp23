@@ -70,6 +70,22 @@ auto main() -> int {
     if (expect(section.find("OpenAI-Organization") != std::string::npos, "SetOrganizationFile must update OpenAI-Organization header") != 0) {
         return 1;
     }
+    // Secure-wipe guardrail assertions for destructor
+    const auto dtor_start = content.find("Authorization::~Authorization()");
+    if (expect(dtor_start != std::string::npos, "Authorization destructor must exist") != 0) {
+        return 1;
+    }
+    const auto dtor_end = content.find("auto Authorization::SetKey(", dtor_start);
+    if (expect(dtor_end != std::string::npos, "Authorization destructor boundary must exist") != 0) {
+        return 1;
+    }
+    const auto dtor_section = content.substr(dtor_start, dtor_end - dtor_start);
+    if (expect(dtor_section.find("volatile char*") != std::string::npos, "Destructor must use volatile char* for secure wipe") != 0) {
+        return 1;
+    }
+    if (expect(dtor_section.find("p[i] = '\0'") != std::string::npos, "Destructor must implement byte-wise wipe loop") != 0) {
+        return 1;
+    }
 
     std::cout << "PASS: authorization regression checks" << '\n';
     return 0;

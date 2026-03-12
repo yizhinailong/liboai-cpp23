@@ -23,6 +23,22 @@ import :core.error;
 import :core.response;
 import :core.network;
 
+namespace {
+    auto SplitNonEmptyLines(std::string_view data) -> std::vector<std::string> {
+        std::vector<std::string> split_data;
+        split_data.reserve(static_cast<std::size_t>(std::ranges::count(data, '\n')) + 1U);
+
+        for (auto&& line_view : data | std::views::split('\n')) {
+            std::string line(std::ranges::begin(line_view), std::ranges::end(line_view));
+            if (!line.empty()) {
+                split_data.push_back(std::move(line));
+            }
+        }
+
+        return split_data;
+    }
+}
+
 export namespace liboai {
     /**
      * @brief Class containing methods for building Function objects to supply
@@ -1479,24 +1495,7 @@ export namespace liboai {
             a vector of {"Hello World"}.
         */
         if (!data.empty()) {
-            std::vector<std::string> split_data;
-            std::string temp;
-            std::istringstream iss(data);
-            while (std::getline(iss, temp)) {
-                split_data.push_back(temp);
-            }
-
-            // remove empty strings from the vector
-            split_data.erase(
-                std::remove_if(
-                    split_data.begin(),
-                    split_data.end(),
-                    [](const std::string& s) { return s.empty(); }
-                ),
-                split_data.end()
-            );
-
-            return split_data;
+            return SplitNonEmptyLines(data);
         }
 
         return {};
@@ -1516,24 +1515,7 @@ export namespace liboai {
             return {};
         }
 
-        std::vector<std::string> split_data;
-        std::string temp;
-        std::istringstream iss(data);
-        while (std::getline(iss, temp)) {
-            split_data.push_back(temp);
-        }
-
-        // remove empty strings from the vector
-        split_data.erase(
-            std::remove_if(
-                split_data.begin(),
-                split_data.end(),
-                [](const std::string& s) { return s.empty(); }
-            ),
-            split_data.end()
-        );
-
-        return split_data;
+        return SplitNonEmptyLines(data);
     }
 
     auto Conversation::ParseStreamData(
